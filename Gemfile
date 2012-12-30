@@ -6,6 +6,9 @@ gem 'rails', '3.2.3'
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 gem 'sqlite3'
+gem 'pg'  
+
+gem 'widget_list', :git => 'https://github.com/davidrenne/widget_list.git'
 
 
 # Gems used only for assets and not required
