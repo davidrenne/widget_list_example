@@ -4,23 +4,29 @@ class WidgetListExamplesController < ApplicationController
     # Load Sample "items" Data. Comment out in your first time executing a widgetlist to create the items table
     # 
     
-=begin
-WidgetList::List.get_database.create_table :items do
-  primary_key :id
-  String :name
-  Float :price
-  Int :sku
-  Date :date_added
-end
-items = WidgetList::List.get_database[:items]
-100.times {
-  items.insert(:name => 'abc', :price => rand * 100, :date_added => '2008-02-01', :sku => 12345)
-  items.insert(:name => '123', :price => rand * 100, :date_added => '2008-02-02', :sku => 54321)
-  items.insert(:name => 'asdf', :price => rand * 100, :date_added => '2008-02-03', :sku => 67895)
-  items.insert(:name => 'qwerty', :price => rand * 100, :date_added => '2008-02-04', :sku => 66666)
-  items.insert(:name => 'poop', :price => rand * 100, :date_added => '2008-02-05', :sku => 77777)
-} 
-=end
+	begin 
+      WidgetList::List.get_database.create_table :items do
+        primary_key :id
+        String :name
+        Float :price
+       Int :sku
+        Date :date_added
+      end
+      items = WidgetList::List.get_database[:items]
+      100.times {
+        items.insert(:name => 'abc', :price => rand * 100, :date_added => '2008-02-01', :sku => 12345)
+        items.insert(:name => '123', :price => rand * 100, :date_added => '2008-02-02', :sku => 54321)
+        items.insert(:name => 'asdf', :price => rand * 100, :date_added => '2008-02-03', :sku => 67895)
+        items.insert(:name => 'qwerty', :price => rand * 100, :date_added => '2008-02-04', :sku => 66666)
+        items.insert(:name => 'poop', :price => rand * 100, :date_added => '2008-02-05', :sku => 77777)
+      }
+	rescue Exception => e
+	  #
+	  # Table already exists
+	  #
+	  logger.info "Test table in items already exists? " + e.to_s
+	end
+	
     #
     # Setup your first widget_list
     #
