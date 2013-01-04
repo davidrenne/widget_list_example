@@ -8,7 +8,7 @@ gem 'rails', '3.2.3'
 gem 'sqlite3'
 gem 'pg'  
 
-gem 'widget_list', :git => 'https://github.com/davidrenne/widget_list.git'
+gem 'widget_list', :path => 'C:/xampp/htdocs/widget_list'
 
 
 # Gems used only for assets and not required

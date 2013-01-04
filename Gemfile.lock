@@ -1,6 +1,5 @@
-GIT
-  remote: https://github.com/davidrenne/widget_list.git
-  revision: d977124168cc3ab6655a4a94d5795c672b8f638d
+PATH
+  remote: C:/xampp/htdocs/widget_list
   specs:
     widget_list (1.0.2)
       sequel (= 3.42.0)
@@ -97,7 +96,6 @@ GEM
       hike (~> 1.2)
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
-    sqlite3 (1.3.6)
     sqlite3 (1.3.6-x86-mingw32)
     thor (0.14.6)
     tilt (1.3.3)
