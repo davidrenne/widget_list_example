@@ -9,16 +9,16 @@ class WidgetListExamplesController < ApplicationController
           primary_key :id
           String :name
           Float :price
-          Int :sku
+          Fixnum :sku
           Date :date_added
         end
         items = WidgetList::List.get_database[:items]
         100.times {
-          items.insert(:name => 'abc', :price => rand * 100, :date_added => '2008-02-01', :sku => 12345)
-          items.insert(:name => '123', :price => rand * 100, :date_added => '2008-02-02', :sku => 54321)
-          items.insert(:name => 'asdf', :price => rand * 100, :date_added => '2008-02-03', :sku => 67895)
-          items.insert(:name => 'qwerty', :price => rand * 100, :date_added => '2008-02-04', :sku => 66666)
-          items.insert(:name => 'poop', :price => rand * 100, :date_added => '2008-02-05', :sku => 77777)
+          items.insert(:name => 'abc_'    + rand(10),   :price => rand * 100, :date_added => '2008-02-01', :sku => rand(9999))
+          items.insert(:name => '123_'    + rand(10),   :price => rand * 100, :date_added => '2008-02-02', :sku => rand(9999))
+          items.insert(:name => 'asdf_'   + rand(10),   :price => rand * 100, :date_added => '2008-02-03', :sku => rand(9999))
+          items.insert(:name => 'qwerty_' + rand(10),   :price => rand * 100, :date_added => '2008-02-04', :sku => rand(9999))
+          items.insert(:name => 'meow_'   + rand(10),   :price => rand * 100, :date_added => '2008-02-05', :sku => rand(9999))
         }
     rescue Exception => e
       #
