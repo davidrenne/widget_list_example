@@ -1,0 +1,17 @@
+#For connection examples see: http://sequel.rubyforge.org/rdoc/files/doc/opening_databases_rdoc.html
+
+development:
+  :primary:     sqlite:/
+  :secondary:   sqlite:/
+
+test:
+  :primary:     sqlite:/
+  :secondary:   sqlite:/
+
+release:
+  :primary:     sqlite:/
+  :secondary:   sqlite:/
+
+production:
+  :primary:     sqlite:/
+  :secondary:   sqlite:/
