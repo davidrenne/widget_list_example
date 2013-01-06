@@ -8,7 +8,15 @@ gem 'rails', '3.2.3'
 gem 'sqlite3'
 gem 'pg'  
 
-gem 'widget_list', :path => 'C:/xampp/htdocs/widget_list'
+#
+# Bleeding edge widget_list is always best just in case I dont bundle the gem and post to http://rubygems.org
+#
+gem 'widget_list', :git => 'git://github.com/davidrenne/widget_list.git'
+
+#
+# Or pull from rubygems.org
+#
+# gem 'widget_list'
 
 
 # Gems used only for assets and not required
