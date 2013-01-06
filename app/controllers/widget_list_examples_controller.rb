@@ -12,13 +12,12 @@ class WidgetListExamplesController < ApplicationController
           Fixnum :sku
           Date :date_added
         end
-        items = WidgetList::List.get_database[:items]
         100.times {
-          items.insert(:name => 'abc_'    + rand(10),   :price => rand * 100, :date_added => '2008-02-01', :sku => rand(9999))
-          items.insert(:name => '123_'    + rand(10),   :price => rand * 100, :date_added => '2008-02-02', :sku => rand(9999))
-          items.insert(:name => 'asdf_'   + rand(10),   :price => rand * 100, :date_added => '2008-02-03', :sku => rand(9999))
-          items.insert(:name => 'qwerty_' + rand(10),   :price => rand * 100, :date_added => '2008-02-04', :sku => rand(9999))
-          items.insert(:name => 'meow_'   + rand(10),   :price => rand * 100, :date_added => '2008-02-05', :sku => rand(9999))
+          items.insert(:name => 'abc_'    + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-01', :sku => rand(9999))
+          items.insert(:name => '123_'    + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-02', :sku => rand(9999))
+          items.insert(:name => 'asdf_'   + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-03', :sku => rand(9999))
+          items.insert(:name => 'qwerty_' + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-04', :sku => rand(9999))
+          items.insert(:name => 'meow_'   + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-05', :sku => rand(9999))
         }
     rescue Exception => e
       #
