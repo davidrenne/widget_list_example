@@ -1,6 +1,5 @@
 class WidgetListExamplesController < ApplicationController
   def ruby_items
-    
     #
     # Load Sample "items" Data. Comment out in your first time executing a widgetlist to create the items table
     #
@@ -12,6 +11,7 @@ class WidgetListExamplesController < ApplicationController
           Fixnum :sku
           Date :date_added
         end
+        items = WidgetList::List.get_database[:items]
         100.times {
           items.insert(:name => 'abc_'    + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-01', :sku => rand(9999))
           items.insert(:name => '123_'    + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-02', :sku => rand(9999))
@@ -253,6 +253,12 @@ class WidgetListExamplesController < ApplicationController
     # If AJAX, send back JSON
     #
     if $_REQUEST.key?('BUTTON_VALUE') && $_REQUEST['LIST_NAME'] == list_parms['name']
+      
+      if $_REQUEST.key?('export_widget_list')
+        send_data(list.render(), :filename => list_parms['name'] + '.csv')
+        return
+      end
+      
       ret = {}
       ret['list']     = WidgetList::Utils::fill({ '<!--CUSTOM_CONTENT-->' =>  action_buttons } , list.render() )
       ret['list_id']  = list_parms['name']
