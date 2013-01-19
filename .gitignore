@@ -1,6 +1,8 @@
-Gemfile.lock
-Gemfile
+/Gemfil*
 /.bundle
 /db/*.sqlite3
 /log/*.log
 /tmp
+/.idea/*
+/vendor/cache/*
+/.sass-cache/*
