@@ -41,17 +41,20 @@ class WidgetListExamplesController < ApplicationController
       # Handle Dynamic Filters
       #
       if $_REQUEST.key?('switch_grouping') && $_REQUEST['switch_grouping'] == 'Item Name'
-        groupByFilter       = 'item'
-        countSQL            = 'COUNT(1) as cnt,'
-        groupBySQL          = 'GROUP BY name'
+        groupByFilter                  = 'item'
+        countSQL                       = 'COUNT(1) as cnt,'
+        groupBySQL                     = 'GROUP BY name'
+        groupByDesc                    = ' (Grouped By Name)'
       elsif  $_REQUEST.key?('switch_grouping') && $_REQUEST['switch_grouping'] == 'Sku Number'
-        groupByFilter       = 'sku'
-        countSQL            = 'COUNT(1) as cnt,'
-        groupBySQL          = 'GROUP BY sku'
+        groupByFilter                  = 'sku'
+        countSQL                       = 'COUNT(1) as cnt,'
+        groupBySQL                     = 'GROUP BY sku'
+        groupByDesc                    = ' (Grouped By Sku Number)'
       else
-        groupByFilter       = 'none'
-        countSQL            = ''
-        groupBySQL          = ''
+        groupByFilter                  = 'none'
+        countSQL                       = ''
+        groupBySQL                     = ''
+        groupByDesc                    = ''
       end
 
       list_parms['filter']    = []
@@ -60,8 +63,14 @@ class WidgetListExamplesController < ApplicationController
       case drillDown
         when 'filter_by_name'
           list_parms['filter'] << " name = '" + filterValue + "'"
+          list_parms['listDescription']  = '<div class="goback" onclick="ListHome(\'' + list_parms['name'] + '\');" title="Go Back"></div> Filtered by Name (' + filterValue + ')' + groupByDesc
         when 'filter_by_sku'
           list_parms['filter'] << " sku =  '" + filterValue + "'"
+          list_parms['listDescription']  = '<div class="goback" onclick="ListHome(\'' + list_parms['name'] + '\');" title="Go Back"></div> Filtered by SKU (' + filterValue + ')' + groupByDesc
+        else
+          list_parms['listDescription']  = ''
+          list_parms['listDescription']  = '<div class="goback" onclick="ListHome(\'' + list_parms['name'] + '\');" title="Go Back"></div>' if !groupByDesc.empty?
+          list_parms['listDescription']  += 'Showing All Ruby Items' + groupByDesc
       end
 
 
@@ -120,7 +129,8 @@ class WidgetListExamplesController < ApplicationController
         button_column_name => "''",
         'date_added'  => ['postgres','oracle'].include?(WidgetList::List.get_database.db_type) ? "TO_CHAR(date_added, 'MM/DD/YYYY')" : "date_added"
       }
-      list_parms['groupByItems']    = ['All Records','Item Name', 'Sku Number']
+
+      list_parms['groupByItems']    = ['All Records', 'Item Name', 'Sku Number']
 
       #
       # Generate a template for the DOWN ARROW for CUSTOM FILTER
@@ -135,12 +145,11 @@ class WidgetListExamplesController < ApplicationController
       input['title']       = 'Optional CSV list'
 
       button_search = {}
-      button_search['innerClass']   = "success btn-submit"
       button_search['onclick']      = "alert('This would search, but is not coded.  That is for you to do')"
 
       list_parms['list_search_form'] = WidgetList::Utils::fill( {
-                                                                  '<!--COMMENTS-->'            => WidgetList::Widgets::widget_input(input),
                                                                   '<!--BUTTON_SEARCH-->'       => WidgetList::Widgets::widget_button('Search', button_search),
+                                                                  '<!--COMMENTS-->'            => WidgetList::Widgets::widget_input(input),
                                                                   '<!--BUTTON_CLOSE-->'        => "HideAdvancedSearch(this)" } ,
                                                                 '
       <div id="advanced-search-container">
