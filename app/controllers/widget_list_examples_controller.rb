@@ -11,15 +11,16 @@ class WidgetListExamplesController < ApplicationController
           String :name
           Float :price
           Fixnum :sku
+          String :active
           Date :date_added
         end
         items = WidgetList::List.get_database[:items]
         100.times {
-          items.insert(:name => 'abc_'    + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-01', :sku => rand(9999))
-          items.insert(:name => '123_'    + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-02', :sku => rand(9999))
-          items.insert(:name => 'asdf_'   + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-03', :sku => rand(9999))
-          items.insert(:name => 'qwerty_' + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-04', :sku => rand(9999))
-          items.insert(:name => 'meow_'   + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-05', :sku => rand(9999))
+          items.insert(:name => 'ab\'c_quoted_'    + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-01', :sku => rand(9999), :active => 'Yes')
+          items.insert(:name => '12"3_'            + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-02', :sku => rand(9999), :active => 'Yes')
+          items.insert(:name => 'asdf_'            + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-03', :sku => rand(9999), :active => 'Yes')
+          items.insert(:name => 'qwerty_'          + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-04', :sku => rand(9999), :active => 'No')
+          items.insert(:name => 'meow_'            + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-05', :sku => rand(9999), :active => 'No')
         }
     rescue Exception => e
       #
@@ -58,18 +59,21 @@ class WidgetListExamplesController < ApplicationController
       end
 
       list_parms['filter']    = []
+      list_parms['bindVars']  = []
       drillDown, filterValue  = WidgetList::List::get_filter_and_drilldown(list_parms['name'])
 
       case drillDown
         when 'filter_by_name'
-          list_parms['filter'] << " name = '" + filterValue + "'"
-          list_parms['listDescription']  = '<div class="goback" onclick="ListHome(\'' + list_parms['name'] + '\');" title="Go Back"></div> Filtered by Name (' + filterValue + ')' + groupByDesc
+          list_parms['filter']   << " name = ? "
+          list_parms['bindVars'] << filterValue
+          list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) + ' Filtered by Name (' + filterValue + ')' + groupByDesc
         when 'filter_by_sku'
-          list_parms['filter'] << " sku =  '" + filterValue + "'"
-          list_parms['listDescription']  = '<div class="goback" onclick="ListHome(\'' + list_parms['name'] + '\');" title="Go Back"></div> Filtered by SKU (' + filterValue + ')' + groupByDesc
+          list_parms['filter']   << " sku = ? "
+          list_parms['bindVars'] << filterValue
+          list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) + ' Filtered by SKU (' + filterValue + ')' + groupByDesc
         else
-          list_parms['listDescription']  = ''
-          list_parms['listDescription']  = '<div class="goback" onclick="ListHome(\'' + list_parms['name'] + '\');" title="Go Back"></div>' if !groupByDesc.empty?
+          list_parms['listDescription']   = ''
+          list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) if !groupByDesc.empty?
           list_parms['listDescription']  += 'Showing All Ruby Items' + groupByDesc
       end
 
@@ -94,13 +98,14 @@ class WidgetListExamplesController < ApplicationController
       list_parms['view']          = '(
                                        SELECT
                                              ' + countSQL + '
-                                             \'\'    AS checkbox,
+                                             \'\'     AS checkbox,
                                              ' + WidgetList::List::build_drill_down_link(list_parms['name'],'filter_by_name','a.name','a.name','name_linked') + '
                                              ' + WidgetList::List::build_drill_down_link(list_parms['name'],'filter_by_sku','a.sku','a.sku','sku_linked') + '
-                                             a.id    AS id,
-                                             a.name  AS name,
-                                             a.sku   AS sku,
-                                             a.price AS price,
+                                             a.id         AS id,
+                                             a.active     AS active,
+                                             a.name       AS name,
+                                             a.sku        AS sku,
+                                             a.price      AS price,
                                              a.date_added AS date_added
                                          FROM
                                              items a
@@ -165,57 +170,53 @@ class WidgetListExamplesController < ApplicationController
       </div>')
 
       #
-      # Map out the visible fields
+      # Control widths of special fields
       #
 
-      list_parms.deep_merge!({'fields' =>
-                                {
-                                  'checkbox'=> 'checkbox_header',
-                                }
+      list_parms['columnWidth']    = {
+                                        'date_added'=>'200px',
+                                        'sku_linked'=>'20px',
+                                     }
+
+      #
+      # If certain statuses of records are shown, visualize
+      #
+
+      list_parms.deep_merge!({'rowStylesByStatus' =>
+                                  {'active'=>
+                                       {'Yes' => '' }
+                                  }
+                             })
+      list_parms.deep_merge!({'rowStylesByStatus' =>
+                                  {'active'=>
+                                       {'No'  => 'font-style:italic;color:red;' }
+                                  }
                              })
 
-      list_parms.deep_merge!({'fields' =>
-                                {
-                                  'cnt'=> 'Total Items In Group',
-                                }
-                             }) if groupByFilter != 'none'
+      #
+      # Map out the visible fields
+      #
+      list_parms['fields'] = {}
+      list_parms['fields']['checkbox']         = 'checkbox_header'
+      list_parms['fields']['cnt']              = 'Total Items In Group'         if groupByFilter != 'none'
+      list_parms['fields']['id']               = 'Item Id'                      if groupByFilter == 'none'
+      list_parms['fields']['name_linked']      = 'Name'                         if groupByFilter == 'none' or groupByFilter == 'item'
+      list_parms['fields']['price']            = 'Price of Item'                if groupByFilter == 'none'
+      list_parms['fields']['sku_linked']       = 'Sku #'                        if groupByFilter == 'none' or groupByFilter == 'sku'
+      list_parms['fields']['date_added']       = 'Date Added'                   if groupByFilter == 'none'
+      list_parms['fields']['active']           = 'Active Item'                  if groupByFilter == 'none'
+      list_parms['fields'][button_column_name] = button_column_name.capitalize  if groupByFilter == 'none'
 
-      list_parms.deep_merge!({'fields' =>
-                                {
-                                  'id'=> 'Item Id',
-                                }
-                             }) if groupByFilter == 'none'
 
-      list_parms.deep_merge!({'fields' =>
-                                {
-                                  'name_linked'=> 'Name',
-                                }
-                             }) if groupByFilter == 'none' or groupByFilter == 'item'
-
-      list_parms.deep_merge!({'fields' =>
-                                {
-                                  'price'=> 'Price of Item',
-                                }
-                             }) if groupByFilter == 'none'
-
-      list_parms.deep_merge!({'fields' =>
-                                {
-                                  'sku_linked'=> 'Sku #',
-                                }
-                             }) if groupByFilter == 'none' or groupByFilter == 'sku'
-
-      list_parms.deep_merge!({'fields' =>
-                                {
-                                  'date_added'=> 'Date Added',
-                                }
-                             }) if groupByFilter == 'none'
-
-      list_parms.deep_merge!({'fields' =>
-                                {
-                                  button_column_name => button_column_name.capitalize,
-                                }
-                             })
-
+      list_parms['columnPopupTitle'] = {}
+      list_parms['columnPopupTitle']['checkbox']         = 'Select any record'
+      list_parms['columnPopupTitle']['cnt']              = 'Total Count'
+      list_parms['columnPopupTitle']['id']               = 'The primary key of the item'
+      list_parms['columnPopupTitle']['name_linked']      = 'Name (Click to drill down)'
+      list_parms['columnPopupTitle']['price']            = 'Price of item (not formatted)'
+      list_parms['columnPopupTitle']['sku_linked']       = 'Sku # (Click to drill down)'
+      list_parms['columnPopupTitle']['date_added']       = 'The date the item was added to the database'
+      list_parms['columnPopupTitle']['active']           = 'Is the item active?'
       #
       # Setup a custom field for checkboxes stored into the session and reloaded when refresh occurs
       #

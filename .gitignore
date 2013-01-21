@@ -1,4 +1,3 @@
-/Gemfil*
 /.bundle
 /db/*.sqlite3
 /log/*.log
@@ -6,3 +5,4 @@
 /.idea/*
 /vendor/cache/*
 /.sass-cache/*
+Gem*
