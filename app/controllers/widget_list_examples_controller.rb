@@ -98,7 +98,7 @@ class WidgetListExamplesController < ApplicationController
       #
       # Because sku_linked column is being used and the raw SKU is hidden, we need to make this available for searching via fields_hidden
       #
-      list_parms['fields_hidden'] = ['sku']
+      list_parms['fieldsHidden'] = ['sku']
 
       drill_downs = []
       drill_downs << WidgetList::List::build_drill_down_link(list_parms['name'],'filter_by_name','a.name','a.name','name_linked')
@@ -182,7 +182,7 @@ class WidgetListExamplesController < ApplicationController
       button_search = {}
       button_search['onclick']      = "alert('This would search, but is not coded.  That is for you to do')"
 
-      list_parms['list_search_form'] = WidgetList::Utils::fill( {
+      list_parms['listSearchForm'] = WidgetList::Utils::fill( {
                                                                   '<!--BUTTON_SEARCH-->'       => WidgetList::Widgets::widget_button('Search', button_search),
                                                                   '<!--COMMENTS-->'            => WidgetList::Widgets::widget_input(input),
                                                                   '<!--BUTTON_CLOSE-->'        => "HideAdvancedSearch(this)" } ,

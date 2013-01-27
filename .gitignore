@@ -6,3 +6,4 @@
 /vendor/cache/*
 /.sass-cache/*
 Gem*
+*.DS_Store
