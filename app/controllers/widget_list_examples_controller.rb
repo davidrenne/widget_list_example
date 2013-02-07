@@ -280,4 +280,228 @@ class WidgetListExamplesController < ApplicationController
 
     end
   end
+
+
+  def ruby_items_active_record
+    begin
+
+      list_parms   = {}
+
+      #
+      # Give it a name, some SQL to feed widget_list and set a noDataMessage
+      #
+      list_parms['name']          = 'ruby_items_yum'
+
+      #
+      # Handle Dynamic Filters
+
+
+      list_parms['filter']    = []
+      list_parms['bindVars']  = []
+
+      drillDown, filterValue  = WidgetList::List::get_filter_and_drilldown(list_parms['name'])
+
+      case drillDown
+        when 'filter_by_name'
+          list_parms['filter']   << " name = ? "
+          list_parms['bindVars'] << filterValue
+          list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) + ' Filtered by Name (' + filterValue + ')'
+        when 'filter_by_sku'
+          list_parms['filter']   << " sku = ? "
+          list_parms['bindVars'] << filterValue
+          list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) + ' Filtered by SKU (' + filterValue + ')'
+        else
+          list_parms['listDescription']   = ''
+          list_parms['listDescription']   = 'Showing All Ruby Items'
+      end
+
+      # put <%= @output %> inside your view for initial load nothing to do here other than any custom concatenation of multiple lists
+      #
+      # Setup your first widget_list
+      #
+
+      button_column_name = 'actions'
+
+      #
+      # customFooter will add buttons to the bottom of the list.
+      #
+
+      list_parms['customFooter'] =  WidgetList::Widgets::widget_button('Add New Item', {'page' => '/add/'} ) + WidgetList::Widgets::widget_button('Do something else', {'page' => '/else/'} )
+
+      #
+      # Give some SQL to feed widget_list and set a noDataMessage
+      #
+      list_parms['searchIdCol']   = ['id','sku']
+
+      #
+      # Because sku_linked column is being used and the raw SKU is hidden, we need to make this available for searching via fields_hidden
+      #
+      list_parms['fieldsHidden'] = ['sku']
+
+      list_parms['view']   = Item
+
+      #
+      # Map out the visible fields
+      #
+      list_parms['fields'] = {}
+      list_parms['fields']['checkbox']         = 'checkbox_header'
+      list_parms['fields']['id']               = 'Item Id'
+      list_parms['fields']['name_linked']      = 'Name'
+      list_parms['fields']['price']            = 'Price of Item'
+      list_parms['fields']['sku_linked']       = 'Sku #'
+      list_parms['fields']['date_added_formatted']       = 'Date Added'
+      list_parms['fields']['active']           = 'Active Item'
+      list_parms['fields'][button_column_name] = button_column_name.capitalize
+
+
+      list_parms['noDataMessage'] = 'No Ruby Items Found'
+      list_parms['title']         = 'Ruby Items!!!'
+
+      #
+      # Create small button array and pass to the buttons key
+      #
+
+      mini_buttons = {}
+      mini_buttons['button_edit'] = {'page'       => '/edit',
+                                     'text'       => 'Edit',
+                                     'function'   => 'Redirect',
+                                     #pass tags to pull from each column when building the URL
+                                     'tags'       => {'my_key_name' => 'name','value_from_database'=>'price'}}
+
+      mini_buttons['button_delete'] = {'page'       => '/delete',
+                                       'text'       => 'Delete',
+                                       'function'   => 'alert',
+                                       'innerClass' => 'danger'}
+      list_parms['buttons']                                            = {button_column_name => mini_buttons}
+
+
+      list_parms['fieldFunction']                                      = {
+        button_column_name => "''",
+        'date_added_formatted'  => ['postgres','oracle'].include?(WidgetList::List.get_db_type(true)) ? "TO_CHAR(date_added, 'MM/DD/YYYY')" : "date_added"
+      }
+
+      list_parms['fieldFunction']['name_linked']    = WidgetList::List::build_drill_down_link(list_parms['name'],'filter_by_name','name','name','name_linked')
+      list_parms['fieldFunction']['sku_linked']     = WidgetList::List::build_drill_down_link(list_parms['name'],'filter_by_sku','sku','sku','sku_linked')
+      list_parms['fieldFunction']['checkbox']       = '\'\''
+
+      #
+      # Setup a custom field for checkboxes stored into the session and reloaded when refresh occurs
+      #
+      list_parms = WidgetList::List.checkbox_helper(list_parms,'id')
+
+      #
+      # Generate a template for the DOWN ARROW for CUSTOM FILTER
+      #
+      input = {}
+
+      input['id']          = 'comments'
+      input['name']        = 'comments'
+      input['width']       = '170'
+      input['max_length']  = '500'
+      input['input_class'] = 'info-input'
+      input['title']       = 'Optional CSV list'
+
+      button_search = {}
+      button_search['onclick']      = "alert('This would search, but is not coded.  That is for you to do')"
+
+      list_parms['listSearchForm'] = WidgetList::Utils::fill( {
+                                                                '<!--BUTTON_SEARCH-->'       => WidgetList::Widgets::widget_button('Search', button_search),
+                                                                '<!--COMMENTS-->'            => WidgetList::Widgets::widget_input(input),
+                                                                '<!--BUTTON_CLOSE-->'        => "HideAdvancedSearch(this)" } ,
+                                                              '
+      <div id="advanced-search-container">
+      <div class="widget-search-drilldown-close" onclick="<!--BUTTON_CLOSE-->">X</div>
+        <ul class="advanced-search-container-inline" id="search_columns">
+          <li>
+             <div>Search Comments</div>
+             <!--COMMENTS-->
+          </li>
+        </ul>
+      <br/>
+      <div style="text-align:right;width:100%;height:30px;" class="advanced-search-container-buttons"><!--BUTTON_RESET--><!--BUTTON_SEARCH--></div>
+      </div>'
+      # or to keep HTML out of controller render_to_string(:partial => 'partials/form_xxx')
+      )
+
+      #
+      # Control widths of special fields
+      #
+
+      list_parms['columnWidth']    = {
+        'date_added'=>'200px',
+        'sku_linked'=>'20px',
+      }
+
+      #
+      # If certain statuses of records are shown, visualize
+      #
+
+      list_parms.deep_merge!({'rowStylesByStatus' =>
+                                {'active'=>
+                                   {'Yes' => '' }
+                                }
+                             })
+      list_parms.deep_merge!({'rowStylesByStatus' =>
+                                {'active'=>
+                                   {'No'  => 'font-style:italic;color:red;' }
+                                }
+                             })
+
+      list_parms.deep_merge!({'rowColorByStatus' =>
+                                {'active'=>
+                                   {'Yes' => '' }
+                                }
+                             })
+      list_parms.deep_merge!({'rowColorByStatus' =>
+                                {'active'=>
+                                   {'No'  => '#EBEBEB' }
+                                }
+                             })
+
+
+      list_parms['columnPopupTitle'] = {}
+      list_parms['columnPopupTitle']['checkbox']         = 'Select any record'
+      list_parms['columnPopupTitle']['id']               = 'The primary key of the item'
+      list_parms['columnPopupTitle']['name_linked']      = 'Name (Click to drill down)'
+      list_parms['columnPopupTitle']['price']            = 'Price of item (not formatted)'
+      list_parms['columnPopupTitle']['sku_linked']       = 'Sku # (Click to drill down)'
+      list_parms['columnPopupTitle']['date_added']       = 'The date the item was added to the database'
+      list_parms['columnPopupTitle']['active']           = 'Is the item active?'
+
+      output_type, output  = WidgetList::List.build_list(list_parms)
+
+      case output_type
+        when 'html'
+          # put <%= @output %> inside your view for initial load nothing to do here other than any custom concatenation of multiple lists
+          @raps_listing = output
+        when 'json'
+          return render :inline => output
+        when 'export'
+          send_data(output, :filename => list_parms['name'] + '.csv')
+          return
+      end
+
+    rescue Exception => e
+
+      Rails.logger.info e.to_s + "\n\n" + $!.backtrace.join("\n\n")
+
+      #really this block is just to catch initial ruby errors in setting up your list_parms
+      #I suggest taking out this rescue when going to production
+      output_type, output  = WidgetList::List.build_list(list_parms)
+
+      case output_type
+        when 'html'
+          @raps_listing = output
+        when 'json'
+          return render :inline => output
+        when 'export'
+          send_data(output, :filename => list_parms['name'] + '.csv')
+          return
+      end
+
+    end
+
+
+  end
+
 end
