@@ -1,17 +1,20 @@
 #For connection examples see: http://sequel.rubyforge.org/rdoc/files/doc/opening_databases_rdoc.html
 
 development:
+  #For some reason sqlite:// for a memory table doesnt work on mac
   :primary:     sqlite://<%=Rails.root.join("db", "development.sqlite3") %>
-  :secondary:   false
+
+  #For our secondary connection, we point to the prospective region inside of database.yml for your active record connections
+  :secondary:   development
 
 test:
   :primary:     sqlite://
-  :secondary:   false
+  :secondary:   test
 
 release:
   :primary:     sqlite://
-  :secondary:   false
+  :secondary:   release
 
 production:
   :primary:     sqlite://
-  :secondary:   false
+  :secondary:   production

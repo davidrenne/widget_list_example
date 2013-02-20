@@ -138,7 +138,7 @@ class WidgetListExamplesController < ApplicationController
 
 
       list_parms['noDataMessage'] = 'No Ruby Items Found'
-      list_parms['title']         = 'Ruby Items!!!'
+      list_parms['title']         = 'Ruby Items Using Sequel!!!'
 
       #
       # Create small button array and pass to the buttons key
@@ -292,6 +292,7 @@ class WidgetListExamplesController < ApplicationController
       #
       # Give it a name, some SQL to feed widget_list and set a noDataMessage
       #
+      list_parms['database']      = 'secondary'
       list_parms['name']          = 'ruby_items_yum'
 
       #
@@ -306,11 +307,14 @@ class WidgetListExamplesController < ApplicationController
       case drillDown
         when 'filter_by_name'
           list_parms['filter']   << " name = ? "
-          list_parms['bindVars'] << filterValue
+          #
+          # Since Sequel is not being used you must escape bindVars yourself!!
+          #
+          list_parms['bindVars'] << "'" + filterValue.gsub(/'/,"''") + "'"
           list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) + ' Filtered by Name (' + filterValue + ')'
         when 'filter_by_sku'
           list_parms['filter']   << " sku = ? "
-          list_parms['bindVars'] << filterValue
+          list_parms['bindVars'] << "'" + filterValue.gsub(/'/,"''") + "'"
           list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) + ' Filtered by SKU (' + filterValue + ')'
         else
           list_parms['listDescription']   = ''
@@ -338,7 +342,10 @@ class WidgetListExamplesController < ApplicationController
       #
       # Because sku_linked column is being used and the raw SKU is hidden, we need to make this available for searching via fields_hidden
       #
-      list_parms['fieldsHidden'] = ['sku']
+      list_parms['fieldsHidden'] = {}
+      list_parms['fieldsHidden']['sku']         = 'sku'
+      list_parms['fieldsHidden']['date_added']  = 'date_added'
+      list_parms['fieldsHidden']['name']        = 'name'
 
       list_parms['view']   = Item
 
@@ -357,7 +364,7 @@ class WidgetListExamplesController < ApplicationController
 
 
       list_parms['noDataMessage'] = 'No Ruby Items Found'
-      list_parms['title']         = 'Ruby Items!!!'
+      list_parms['title']         = 'Ruby Items Using Active Record Models!!!'
 
       #
       # Create small button array and pass to the buttons key
@@ -382,8 +389,8 @@ class WidgetListExamplesController < ApplicationController
         'date_added_formatted'  => ['postgres','oracle'].include?(WidgetList::List.get_db_type(true)) ? "TO_CHAR(date_added, 'MM/DD/YYYY')" : "date_added"
       }
 
-      list_parms['fieldFunction']['name_linked']    = WidgetList::List::build_drill_down_link(list_parms['name'],'filter_by_name','name','name','name_linked')
-      list_parms['fieldFunction']['sku_linked']     = WidgetList::List::build_drill_down_link(list_parms['name'],'filter_by_sku','sku','sku','sku_linked')
+      list_parms['fieldFunction']['name_linked']    = WidgetList::List::build_drill_down_link(list_parms['name'],'filter_by_name','name','name','name_linked','','ListDrillDown','','blue','',false)
+      list_parms['fieldFunction']['sku_linked']     = WidgetList::List::build_drill_down_link(list_parms['name'],'filter_by_sku','sku','sku','sku_linked','','ListDrillDown','','blue','',false)
       list_parms['fieldFunction']['checkbox']       = '\'\''
 
       #
@@ -475,7 +482,7 @@ class WidgetListExamplesController < ApplicationController
       case output_type
         when 'html'
           # put <%= @output %> inside your view for initial load nothing to do here other than any custom concatenation of multiple lists
-          @raps_listing = output
+          @output = output
         when 'json'
           return render :inline => output
         when 'export'
@@ -493,7 +500,7 @@ class WidgetListExamplesController < ApplicationController
 
       case output_type
         when 'html'
-          @raps_listing = output
+          @output = output
         when 'json'
           return render :inline => output
         when 'export'
