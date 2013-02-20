@@ -5,5 +5,7 @@
 /vendor/cache/*
 /.sass-cache/*
 *.DS_Store
-
+Gemfile
 Gemfile.lock
+
+db/development.sqlite3
