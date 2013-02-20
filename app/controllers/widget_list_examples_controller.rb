@@ -103,8 +103,21 @@ class WidgetListExamplesController < ApplicationController
       list_parms['fieldsHidden'] = ['sku']
 
       drill_downs = []
-      drill_downs << WidgetList::List::build_drill_down_link(list_parms['name'],'filter_by_name','a.name','a.name','name_linked')
-      drill_downs << WidgetList::List::build_drill_down_link(list_parms['name'],'filter_by_sku','a.sku','a.sku','sku_linked')
+
+      drill_downs << WidgetList::List::build_drill_down( :list_id                => list_parms['name'],
+                                                         :drill_down_name        => 'filter_by_name',
+                                                         :data_to_pass_from_view => 'a.name',
+                                                         :column_to_show         => 'a.name',
+                                                         :column_alias           => 'name_linked'
+                                                       )
+
+      drill_downs << WidgetList::List::build_drill_down(
+                                                         :list_id                => list_parms['name'],
+                                                         :drill_down_name        => 'filter_by_sku',
+                                                         :data_to_pass_from_view => 'a.sku',
+                                                         :column_to_show         => 'a.sku',
+                                                         :column_alias           => 'sku_linked'
+                                                       )
 
       list_parms['view']          = '(
                                        SELECT
@@ -389,8 +402,8 @@ class WidgetListExamplesController < ApplicationController
         'date_added_formatted'  => ['postgres','oracle'].include?(WidgetList::List.get_db_type(true)) ? "TO_CHAR(date_added, 'MM/DD/YYYY')" : "date_added"
       }
 
-      list_parms['fieldFunction']['name_linked']    = WidgetList::List::build_drill_down_link(list_parms['name'],'filter_by_name','name','name','name_linked','','ListDrillDown','','blue','',false)
-      list_parms['fieldFunction']['sku_linked']     = WidgetList::List::build_drill_down_link(list_parms['name'],'filter_by_sku','sku','sku','sku_linked','','ListDrillDown','','blue','',false)
+      list_parms['fieldFunction']['name_linked']    = WidgetList::List::build_drill_down( :list_id => list_parms['name'], :drill_down_name => 'filter_by_name', :data_to_pass_from_view => 'name', :column_to_show => 'name', :column_alias => 'name_linked',:primary_database => false)
+      list_parms['fieldFunction']['sku_linked']     = WidgetList::List::build_drill_down( :list_id => list_parms['name'], :drill_down_name => 'filter_by_sku', :data_to_pass_from_view => 'sku', :column_to_show => 'sku', :column_alias => 'sku_linked',:primary_database => false)
       list_parms['fieldFunction']['checkbox']       = '\'\''
 
       #
