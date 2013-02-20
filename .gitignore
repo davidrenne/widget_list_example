@@ -7,5 +7,3 @@
 *.DS_Store
 
 Gemfile.lock
-
-db/development.sqlite3
