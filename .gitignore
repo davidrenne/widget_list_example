@@ -4,7 +4,6 @@
 /.idea/*
 /vendor/cache/*
 /.sass-cache/*
-Gem*
 *.DS_Store
 
 Gemfile.lock
