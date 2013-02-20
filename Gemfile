@@ -11,7 +11,8 @@ gem 'pg'
 #
 # Bleeding edge widget_list is always best just in case I dont bundle the gem and post to http://rubygems.org
 #
-gem 'widget_list', :git => 'git://github.com/davidrenne/widget_list.git'
+gem 'widget_list', :path => '/Applications/rubystack-1.9.3-0/apps/widget_list/'
+#gem 'widget_list', :git => 'git://github.com/davidrenne/widget_list.git'
 
 #
 # Or pull from rubygems.org

@@ -5,8 +5,9 @@ class WidgetListExamplesController < ApplicationController
     #
     # Load Sample "items" Data. Comment out in your first time executing a widgetlist to create the items table
     #
+=begin
     begin
-      WidgetList::List.get_database.create_table :items do
+      WidgetList::List.get_sequel.create_table :items do
         primary_key :id
         String :name
         Float :price
@@ -14,7 +15,7 @@ class WidgetListExamplesController < ApplicationController
         String :active
         Date :date_added
       end
-      items = WidgetList::List.get_database[:items]
+      items = WidgetList::List.get_sequel[:items]
       100.times {
         items.insert(:name => 'ab\'c_quoted_'    + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-01', :sku => rand(9999), :active => 'Yes')
         items.insert(:name => '12"3_'            + rand(35).to_s,   :price => rand * 100, :date_added => '2008-02-02', :sku => rand(9999), :active => 'Yes')
@@ -28,6 +29,7 @@ class WidgetListExamplesController < ApplicationController
       #
       logger.info "Test table in items already exists? " + e.to_s
     end
+=end
 
     begin
 
@@ -156,7 +158,7 @@ class WidgetListExamplesController < ApplicationController
       list_parms['buttons']                                            = {button_column_name => mini_buttons}
       list_parms['fieldFunction']                                      = {
         button_column_name => "''",
-        'date_added'  => ['postgres','oracle'].include?(WidgetList::List.get_database.db_type) ? "TO_CHAR(date_added, 'MM/DD/YYYY')" : "date_added"
+        'date_added'  => ['postgres','oracle'].include?(WidgetList::List::get_db_type) ? "TO_CHAR(date_added, 'MM/DD/YYYY')" : "date_added"
       }
 
       list_parms['groupByItems']    = ['All Records', 'Item Name', 'Sku Number']

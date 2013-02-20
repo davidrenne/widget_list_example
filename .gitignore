@@ -1,5 +1,4 @@
 /.bundle
-/db/*.sqlite3
 /log/*.log
 /tmp
 /.idea/*
@@ -7,3 +6,5 @@
 /.sass-cache/*
 Gem*
 *.DS_Store
+
+Gemfile.lock

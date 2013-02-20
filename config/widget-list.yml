@@ -1,17 +1,17 @@
 #For connection examples see: http://sequel.rubyforge.org/rdoc/files/doc/opening_databases_rdoc.html
 
 development:
-  :primary:     sqlite:/
-  :secondary:   sqlite:/
+  :primary:     sqlite://<%=Rails.root.join("db", "development.sqlite3") %>
+  :secondary:   false
 
 test:
-  :primary:     sqlite:/
-  :secondary:   sqlite:/
+  :primary:     sqlite://
+  :secondary:   false
 
 release:
-  :primary:     sqlite:/
-  :secondary:   sqlite:/
+  :primary:     sqlite://
+  :secondary:   false
 
 production:
-  :primary:     sqlite:/
-  :secondary:   sqlite:/
+  :primary:     sqlite://
+  :secondary:   false
