@@ -8,6 +8,11 @@ gem 'rails', '3.2.3'
 gem 'sqlite3'
 gem 'pg'  
 
+group :test, :development do
+  gem 'steak'  
+  gem 'launchy'  
+end
+
 #
 # Bleeding edge widget_list is always best just in case I dont bundle the gem and post to http://rubygems.org
 #

@@ -30,10 +30,9 @@ class WidgetListExamplesController < ApplicationController
       logger.info "Test table in items already exists? " + e.to_s
     end
 =end
-
     begin
 
-      list_parms   = {}
+      list_parms   = WidgetList::List::init_config()
 
       #
       # Give it a name, some SQL to feed widget_list and set a noDataMessage
@@ -43,21 +42,25 @@ class WidgetListExamplesController < ApplicationController
       #
       # Handle Dynamic Filters
       #
-      if $_REQUEST.key?('switch_grouping') && $_REQUEST['switch_grouping'] == 'Item Name'
-        groupByFilter                  = 'item'
-        countSQL                       = 'COUNT(1) as cnt,'
-        groupBySQL                     = 'GROUP BY name'
-        groupByDesc                    = ' (Grouped By Name)'
-      elsif  $_REQUEST.key?('switch_grouping') && $_REQUEST['switch_grouping'] == 'Sku Number'
-        groupByFilter                  = 'sku'
-        countSQL                       = 'COUNT(1) as cnt,'
-        groupBySQL                     = 'GROUP BY sku'
-        groupByDesc                    = ' (Grouped By Sku Number)'
-      else
-        groupByFilter                  = 'none'
-        countSQL                       = ''
-        groupBySQL                     = ''
-        groupByDesc                    = ''
+
+      groupBy  = WidgetList::List::get_group_by_selection(list_parms)
+
+      case groupBy
+        when 'Item Name'
+          groupByFilter                  = 'item'
+          countSQL                       = 'COUNT(1) as cnt,'
+          groupBySQL                     = 'GROUP BY name'
+          groupByDesc                    = ' (Grouped By Name)'
+        when 'Sku Number'
+          groupByFilter                  = 'sku'
+          countSQL                       = 'COUNT(1) as cnt,'
+          groupBySQL                     = 'GROUP BY sku'
+          groupByDesc                    = ' (Grouped By Sku Number)'
+        else
+          groupByFilter                  = 'none'
+          countSQL                       = ''
+          groupBySQL                     = ''
+          groupByDesc                    = ''
       end
 
       list_parms['filter']    = []
@@ -101,7 +104,6 @@ class WidgetListExamplesController < ApplicationController
       # Because sku_linked column is being used and the raw SKU is hidden, we need to make this available for searching via fields_hidden
       #
       list_parms['fieldsHidden'] = ['sku']
-
       drill_downs = []
 
       drill_downs << WidgetList::List::build_drill_down( :list_id                => list_parms['name'],
@@ -149,7 +151,6 @@ class WidgetListExamplesController < ApplicationController
       list_parms['fields']['active']           = 'Active Item'                  if groupByFilter == 'none'
       list_parms['fields'][button_column_name] = button_column_name.capitalize  if groupByFilter == 'none'
 
-
       list_parms['noDataMessage'] = 'No Ruby Items Found'
       list_parms['title']         = 'Ruby Items Using Sequel!!!'
 
@@ -174,6 +175,7 @@ class WidgetListExamplesController < ApplicationController
         'date_added'  => ['postgres','oracle'].include?(WidgetList::List::get_db_type) ? "TO_CHAR(date_added, 'MM/DD/YYYY')" : "date_added"
       }
 
+      nil.asdfasdfasdf
       list_parms['groupByItems']    = ['All Records', 'Item Name', 'Sku Number']
 
 
@@ -182,6 +184,15 @@ class WidgetListExamplesController < ApplicationController
       #
       list_parms = WidgetList::List.checkbox_helper(list_parms,'id')
 
+      list_parms.deep_merge!({'inputs' =>
+                                {'checkbox'=>
+                                   {'items' =>
+                                      {
+                                        'disabled_if'  => Proc.new { |row| row['ACTIVE'] == 'No' },
+                                      }
+                                   }
+                                }
+                             })
       #
       # Generate a template for the DOWN ARROW for CUSTOM FILTER
       #
@@ -278,7 +289,11 @@ class WidgetListExamplesController < ApplicationController
     rescue Exception => e
 
       Rails.logger.info e.to_s + "\n\n" + $!.backtrace.join("\n\n")
-
+      
+      if Rails.env == 'development'
+        list_parms['errors'] << "<br/><br/><strong style='color:maroon;'>(Ruby Exception - Still attempted to render list with given config #{list_parms.inspect}) Exception ==> \"#{e.to_s + "<br/><br/>Backtrace:<br/><br/>" + $!.backtrace.join("<br/><br/>")}\"</strong>"
+      end
+      
       #really this block is just to catch initial ruby errors in setting up your list_parms
       #I suggest taking out this rescue when going to production
       output_type, output  = WidgetList::List.build_list(list_parms)
@@ -300,7 +315,7 @@ class WidgetListExamplesController < ApplicationController
   def ruby_items_active_record
     begin
 
-      list_parms   = {}
+      list_parms   = WidgetList::List::init_config()
 
       #
       # Give it a name, some SQL to feed widget_list and set a noDataMessage
@@ -411,6 +426,15 @@ class WidgetListExamplesController < ApplicationController
       #
       list_parms = WidgetList::List.checkbox_helper(list_parms,'id')
 
+      list_parms.deep_merge!({'inputs' =>
+                                {'checkbox'=>
+                                   {'items' =>
+                                      {
+                                        'disabled_if'  => Proc.new { |row| row['ACTIVE'] == 'No' },
+                                      }
+                                   }
+                                }
+                             })
       #
       # Generate a template for the DOWN ARROW for CUSTOM FILTER
       #

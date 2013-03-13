@@ -8,11 +8,11 @@ development:
   :secondary:   development
 
 test:
-  :primary:     sqlite://
+  :primary:     sqlite://<%= (RUBY_PLATFORM.downcase =~ /ming/) ?  Rails.root.join("db", "test.sqlite3").to_s[2..-1] : Rails.root.join("db", "test.sqlite3") %>
   :secondary:   test
 
 release:
-  :primary:     sqlite://
+  :primary:     sqlite://<%= (RUBY_PLATFORM.downcase =~ /ming/) ?  Rails.root.join("db", "development.sqlite3").to_s[2..-1] : Rails.root.join("db", "development.sqlite3") %>
   :secondary:   release
 
 production:
