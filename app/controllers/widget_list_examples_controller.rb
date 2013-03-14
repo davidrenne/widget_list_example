@@ -174,8 +174,7 @@ class WidgetListExamplesController < ApplicationController
         button_column_name => "''",
         'date_added'  => ['postgres','oracle'].include?(WidgetList::List::get_db_type) ? "TO_CHAR(date_added, 'MM/DD/YYYY')" : "date_added"
       }
-
-      nil.asdfasdfasdf
+ 
       list_parms['groupByItems']    = ['All Records', 'Item Name', 'Sku Number']
 
 
