@@ -10,7 +10,8 @@ gem 'pg'
 
 group :test, :development do
   gem 'steak'  
-  gem 'launchy'  
+  gem 'launchy' 
+  gem 'selenium-webdriver'  
 end
 
 #

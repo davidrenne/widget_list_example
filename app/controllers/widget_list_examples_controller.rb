@@ -120,7 +120,7 @@ class WidgetListExamplesController < ApplicationController
                                                          :column_to_show         => 'a.sku',
                                                          :column_alias           => 'sku_linked'
                                                        )
-
+      
       list_parms['view']          = '(
                                        SELECT
                                              ' + countSQL + '
@@ -529,7 +529,11 @@ class WidgetListExamplesController < ApplicationController
     rescue Exception => e
 
       Rails.logger.info e.to_s + "\n\n" + $!.backtrace.join("\n\n")
-
+      
+      if Rails.env == 'development'
+        list_parms['errors'] << "<br/><br/><strong style='color:maroon;'>(Ruby Exception - Still attempted to render list with given config #{list_parms.inspect}) Exception ==> \"#{e.to_s + "<br/><br/>Backtrace:<br/><br/>" + $!.backtrace.join("<br/><br/>")}\"</strong>"
+      end
+      
       #really this block is just to catch initial ruby errors in setting up your list_parms
       #I suggest taking out this rescue when going to production
       output_type, output  = WidgetList::List.build_list(list_parms)
