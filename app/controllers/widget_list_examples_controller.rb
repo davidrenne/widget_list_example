@@ -71,15 +71,13 @@ class WidgetListExamplesController < ApplicationController
         when 'filter_by_name'
           list_parms['filter']   << " name = ? "
           list_parms['bindVars'] << filterValue
-          list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) + ' Filtered by Name (' + filterValue + ')' + groupByDesc
+          list_parms['listDescription']  = ' Filtered by Name (' + filterValue + ')' + groupByDesc
         when 'filter_by_sku'
           list_parms['filter']   << " sku = ? "
           list_parms['bindVars'] << filterValue
-          list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) + ' Filtered by SKU (' + filterValue + ')' + groupByDesc
+          list_parms['listDescription']  = ' Filtered by SKU (' + filterValue + ')' + groupByDesc
         else
-          list_parms['listDescription']   = ''
-          list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) if !groupByDesc.empty?
-          list_parms['listDescription']  += 'Showing All Ruby Items' + groupByDesc
+          list_parms['listDescription']  = 'Showing All Ruby Items' + groupByDesc
       end
 
       # put <%= @output %> inside your view for initial load nothing to do here other than any custom concatenation of multiple lists

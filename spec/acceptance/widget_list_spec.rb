@@ -1,7 +1,6 @@
 require 'acceptance/acceptance_helper'
 
 feature 'Widget list', '' do
-=begin
   scenario 'Does index page for Sequel Example load?' do
     visit '/widget_list_examples/ruby_items/'
     #save_and_open_page
@@ -13,7 +12,17 @@ feature 'Widget list', '' do
     visit '/widget_list_examples/ruby_items/'
     check_for_common_errors
     sort_click(['name_linked','id','price','sku_linked','date_added','active'])
-  end 
+  end
+
+=begin
+  scenario 'Paging and Limits', :js => true do
+    visit '/widget_list_examples/ruby_items/'
+    check_for_common_errors
+    find('#ruby_items_yum_next').click
+    sleep(5)
+    check_for_common_errors
+  end
+=end
 
   scenario 'Search', :js => true do
     visit '/widget_list_examples/ruby_items/'
@@ -23,7 +32,6 @@ feature 'Widget list', '' do
     check_for_common_errors
     check_count(29)
   end 
-=end
 
   scenario 'Group By Item Name', :js => true do
     visit '/widget_list_examples/ruby_items/'
@@ -33,9 +41,7 @@ feature 'Widget list', '' do
     sleep(5)
     check_for_common_errors
     check_count(167)
-    find('.goback').click
-    sleep(5)
-    check_count(500)
+    sort_click(['name_linked','cnt'])
   end 
 
   scenario 'Group By Sku', :js => true do
@@ -46,9 +52,7 @@ feature 'Widget list', '' do
     sleep(5)
     check_for_common_errors
     check_count(493)
-    find('.goback').click
-    sleep(5)
-    check_count(500)
+    sort_click(['sku_linked','cnt'])
   end 
 
 end
