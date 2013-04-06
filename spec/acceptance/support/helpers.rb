@@ -5,6 +5,53 @@ module HelperMethods
   #  end
   #end
   
+  def verify_index_works(url)
+    visit url
+    check_for_common_errors
+    check_count(500)
+  end
+  
+  def verify_sorting_works(url)
+    visit url
+    check_for_common_errors
+    sort_click(['name_linked','id','price','sku_linked','date_added','active'])
+  end
+  
+  def verify_search_works(url)
+    visit url
+    check_for_common_errors
+    fill_in 'list_search_id_ruby_items_yum', :with => 'qwerty'
+    sleep(5)
+    check_for_common_errors
+  end
+  
+  def verify_paging_works(url)
+    visit url
+    check_for_common_errors
+    find('#ruby_items_yum_per_page').find("option[4]").click
+    sleep(5)
+    page.should have_content("of 5 pages")
+    check_for_common_errors
+    find('#ruby_items_yum_next').click
+    sleep(2)
+    check_for_common_errors
+    find('#ruby_items_yum_next').click
+    sleep(2)
+    check_for_common_errors
+    find('#ruby_items_yum_next').click
+    sleep(2)
+    check_for_common_errors
+    find('#ruby_items_yum_next').click
+    sleep(2)
+    check_for_common_errors
+  end
+  
+  def verify_index_works(url)
+    visit url
+    check_for_common_errors
+    check_count(500)
+  end
+  
   def check_for_common_errors
     page.should_not have_content("An error occurred")
     page.should_not have_content("Application Trace")
@@ -27,13 +74,11 @@ module HelperMethods
       find('#' + col+ ' span').click
       sleep(5)
       check_for_common_errors 
-      check_count(500)
       
       #descending
       find('#' + col+ ' span').click
       sleep(5)
       check_for_common_errors 
-      check_count(500)
     }
   end
 end

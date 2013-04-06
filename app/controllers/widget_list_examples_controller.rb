@@ -30,6 +30,7 @@ class WidgetListExamplesController < ApplicationController
       logger.info "Test table in items already exists? " + e.to_s
     end
 =end
+
     begin
 
       list_parms   = WidgetList::List::init_config()
@@ -106,20 +107,21 @@ class WidgetListExamplesController < ApplicationController
 
       drill_downs << WidgetList::List::build_drill_down( :list_id                => list_parms['name'],
                                                          :drill_down_name        => 'filter_by_name',
-                                                         :data_to_pass_from_view => 'a.name',
-                                                         :column_to_show         => 'a.name',
+                                                         :data_to_pass_from_view => (groupByFilter == 'none') ? 'a.name' : 'MAX(a.name)',
+                                                         :column_to_show         => (groupByFilter == 'none') ? 'a.name' : 'MAX(a.name)',
                                                          :column_alias           => 'name_linked'
                                                        )
 
       drill_downs << WidgetList::List::build_drill_down(
                                                          :list_id                => list_parms['name'],
                                                          :drill_down_name        => 'filter_by_sku',
-                                                         :data_to_pass_from_view => 'a.sku',
-                                                         :column_to_show         => 'a.sku',
+                                                         :data_to_pass_from_view => (groupByFilter == 'none') ? 'a.sku' : 'MAX(a.sku)',
+                                                         :column_to_show         => (groupByFilter == 'none') ? 'a.sku' : 'MAX(a.sku)',
                                                          :column_alias           => 'sku_linked'
                                                        )
-      
-      list_parms['view']          = '(
+
+      if groupByFilter == 'none'
+        list_parms['view']          = '(
                                        SELECT
                                              ' + countSQL + '
                                              ' + drill_downs.join(' , ') + ',
@@ -134,7 +136,23 @@ class WidgetListExamplesController < ApplicationController
                                              items a
                                        ' + groupBySQL + '
                                      ) a'
-
+      else
+        list_parms['view']          = '(
+                                       SELECT
+                                             ' + countSQL + '
+                                             ' + drill_downs.join(' , ') + ',
+                                             \'\'     AS checkbox,
+                                             MAX(a.id)         AS id,
+                                             MAX(a.active)     AS active,
+                                             MAX(a.name)       AS name,
+                                             MAX(a.sku)        AS sku,
+                                             MAX(a.price)      AS price,
+                                             MAX(a.date_added) AS date_added
+                                         FROM
+                                             items a
+                                       ' + groupBySQL + '
+                                     ) a'
+      end
       #
       # Map out the visible fields
       #
@@ -168,11 +186,12 @@ class WidgetListExamplesController < ApplicationController
                                        'function'   => 'alert',
                                        'innerClass' => 'danger'}
       list_parms['buttons']                                            = {button_column_name => mini_buttons}
+
       list_parms['fieldFunction']                                      = {
         button_column_name => "''",
-        'date_added'  => ['postgres','oracle'].include?(WidgetList::List::get_db_type) ? "TO_CHAR(date_added, 'MM/DD/YYYY')" : "date_added"
+        'date_added'  => ['postgres','oracle'].include?(WidgetList::List::get_db_type(false)) ? "TO_CHAR(date_added, 'MM/DD/YYYY')" : "date_added"
       }
- 
+
       list_parms['groupByItems']    = ['All Records', 'Item Name', 'Sku Number']
 
 
@@ -203,7 +222,7 @@ class WidgetListExamplesController < ApplicationController
       input['title']       = 'Optional CSV list'
 
       button_search = {}
-      button_search['onclick']      = "alert('This would search, but is not coded.  That is for you to do')"
+      button_search['onclick']     = "alert('This would search, but is not coded.  That is for you to do')"
 
       list_parms['listSearchForm'] = WidgetList::Utils::fill( {
                                                                   '<!--BUTTON_SEARCH-->'       => WidgetList::Widgets::widget_button('Search', button_search),
@@ -286,11 +305,11 @@ class WidgetListExamplesController < ApplicationController
     rescue Exception => e
 
       Rails.logger.info e.to_s + "\n\n" + $!.backtrace.join("\n\n")
-      
+
       if Rails.env == 'development'
         list_parms['errors'] << "<br/><br/><strong style='color:maroon;'>(Ruby Exception - Still attempted to render list with given config #{list_parms.inspect}) Exception ==> \"#{e.to_s + "<br/><br/>Backtrace:<br/><br/>" + $!.backtrace.join("<br/><br/>")}\"</strong>"
       end
-      
+
       #really this block is just to catch initial ruby errors in setting up your list_parms
       #I suggest taking out this rescue when going to production
       output_type, output  = WidgetList::List.build_list(list_parms)
@@ -372,7 +391,33 @@ class WidgetListExamplesController < ApplicationController
       list_parms['fieldsHidden']['date_added']  = 'date_added'
       list_parms['fieldsHidden']['name']        = 'name'
 
-      list_parms['view']   = Item
+      #list_parms['view']   = Item
+
+      #
+      # Use Ransack advanced searching
+      #
+      list_parms['ransackSearch']  = Item.search(params[:q])
+      list_parms['view']           = list_parms['ransackSearch'].result
+
+      button_search = {}
+      button_search['onclick']     = WidgetList::List::build_search_button_click(list_parms)
+
+      list_parms['listSearchForm'] = WidgetList::Utils::fill( {
+                                                                '<!--BUTTON_SEARCH-->'       => WidgetList::Widgets::widget_button('Search', button_search),
+                                                                '<!--BUTTON_CLOSE-->'        => "HideAdvancedSearch(this)" } ,
+                                                              '
+      <div id="advanced-search-container">
+      <div class="widget-search-drilldown-close" onclick="<!--BUTTON_CLOSE-->">X</div>
+        <ul class="advanced-search-container-inline" id="search_columns">
+          <li>
+             <!--RANSACK-->
+          </li>
+        </ul>
+      <br/>
+      <div style="text-align:right;width:100%;height:30px;" class="advanced-search-container-buttons"><!--BUTTON_RESET--><!--BUTTON_SEARCH--></div>
+      </div>'
+      )
+
 
       #
       # Map out the visible fields
@@ -383,7 +428,7 @@ class WidgetListExamplesController < ApplicationController
       list_parms['fields']['name_linked']      = 'Name'
       list_parms['fields']['price']            = 'Price of Item'
       list_parms['fields']['sku_linked']       = 'Sku #'
-      list_parms['fields']['date_added_formatted']       = 'Date Added'
+      list_parms['fields']['date_added']       = 'Date Added'
       list_parms['fields']['active']           = 'Active Item'
       list_parms['fields'][button_column_name] = button_column_name.capitalize
 
@@ -411,7 +456,7 @@ class WidgetListExamplesController < ApplicationController
 
       list_parms['fieldFunction']                                      = {
         button_column_name => "''",
-        'date_added_formatted'  => ['postgres','oracle'].include?(WidgetList::List.get_db_type(true)) ? "TO_CHAR(date_added, 'MM/DD/YYYY')" : "date_added"
+        'date_added'  => ['postgres','oracle'].include?(WidgetList::List.get_db_type(true)) ? "TO_CHAR(date_added, 'MM/DD/YYYY')" : "date_added"
       }
 
       list_parms['fieldFunction']['name_linked']    = WidgetList::List::build_drill_down( :list_id => list_parms['name'], :drill_down_name => 'filter_by_name', :data_to_pass_from_view => 'name', :column_to_show => 'name', :column_alias => 'name_linked',:primary_database => false)
@@ -432,39 +477,7 @@ class WidgetListExamplesController < ApplicationController
                                    }
                                 }
                              })
-      #
-      # Generate a template for the DOWN ARROW for CUSTOM FILTER
-      #
-      input = {}
 
-      input['id']          = 'comments'
-      input['name']        = 'comments'
-      input['width']       = '170'
-      input['max_length']  = '500'
-      input['input_class'] = 'info-input'
-      input['title']       = 'Optional CSV list'
-
-      button_search = {}
-      button_search['onclick']      = "alert('This would search, but is not coded.  That is for you to do')"
-
-      list_parms['listSearchForm'] = WidgetList::Utils::fill( {
-                                                                '<!--BUTTON_SEARCH-->'       => WidgetList::Widgets::widget_button('Search', button_search),
-                                                                '<!--COMMENTS-->'            => WidgetList::Widgets::widget_input(input),
-                                                                '<!--BUTTON_CLOSE-->'        => "HideAdvancedSearch(this)" } ,
-                                                              '
-      <div id="advanced-search-container">
-      <div class="widget-search-drilldown-close" onclick="<!--BUTTON_CLOSE-->">X</div>
-        <ul class="advanced-search-container-inline" id="search_columns">
-          <li>
-             <div>Search Comments</div>
-             <!--COMMENTS-->
-          </li>
-        </ul>
-      <br/>
-      <div style="text-align:right;width:100%;height:30px;" class="advanced-search-container-buttons"><!--BUTTON_RESET--><!--BUTTON_SEARCH--></div>
-      </div>'
-      # or to keep HTML out of controller render_to_string(:partial => 'partials/form_xxx')
-      )
 
       #
       # Control widths of special fields
@@ -527,11 +540,11 @@ class WidgetListExamplesController < ApplicationController
     rescue Exception => e
 
       Rails.logger.info e.to_s + "\n\n" + $!.backtrace.join("\n\n")
-      
+
       if Rails.env == 'development'
         list_parms['errors'] << "<br/><br/><strong style='color:maroon;'>(Ruby Exception - Still attempted to render list with given config #{list_parms.inspect}) Exception ==> \"#{e.to_s + "<br/><br/>Backtrace:<br/><br/>" + $!.backtrace.join("<br/><br/>")}\"</strong>"
       end
-      
+
       #really this block is just to catch initial ruby errors in setting up your list_parms
       #I suggest taking out this rescue when going to production
       output_type, output  = WidgetList::List.build_list(list_parms)

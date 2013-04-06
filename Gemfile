@@ -1,17 +1,20 @@
 source 'https://rubygems.org'
-
 gem 'rails', '3.2.3'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 gem 'sqlite3'
-gem 'pg'  
+gem 'pg'
+gem 'activerecord-postgresql-adapter'  
+gem 'activerecord-oracle_enhanced-adapter'
+gem 'ruby-oci8'
 
 group :test, :development do
   gem 'steak'  
   gem 'launchy' 
   gem 'selenium-webdriver'  
+  gem 'spork'
 end
 
 #
