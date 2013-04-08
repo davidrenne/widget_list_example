@@ -20,7 +20,8 @@ end
 #
 # Bleeding edge widget_list is always best just in case I dont bundle the gem and post to http://rubygems.org
 #
-gem 'widget_list', :git => 'git://github.com/davidrenne/widget_list.git'
+gem 'widget_list'
+gem 'widget_list_theme_blue_sky_basin'
 
 #
 # Or pull from rubygems.org
