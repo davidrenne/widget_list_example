@@ -331,6 +331,14 @@ class WidgetListExamplesController < ApplicationController
   def ruby_items_active_record
     begin
 
+=begin
+      # 
+      # Uncomment if you wish to play with the administration front end
+      #
+      @output = WidgetList.go!()
+      return
+=end
+
       list_parms   = WidgetList::List::init_config()
 
       #
@@ -398,26 +406,6 @@ class WidgetListExamplesController < ApplicationController
       #
       list_parms['ransackSearch']  = Item.search(params[:q])
       list_parms['view']           = list_parms['ransackSearch'].result
-
-      button_search = {}
-      button_search['onclick']     = WidgetList::List::build_search_button_click(list_parms)
-
-      list_parms['listSearchForm'] = WidgetList::Utils::fill( {
-                                                                '<!--BUTTON_SEARCH-->'       => WidgetList::Widgets::widget_button('Search', button_search),
-                                                                '<!--BUTTON_CLOSE-->'        => "HideAdvancedSearch(this)" } ,
-                                                              '
-      <div id="advanced-search-container">
-      <div class="widget-search-drilldown-close" onclick="<!--BUTTON_CLOSE-->">X</div>
-        <ul class="advanced-search-container-inline" id="search_columns">
-          <li>
-             <!--RANSACK-->
-          </li>
-        </ul>
-      <br/>
-      <div style="text-align:right;width:100%;height:30px;" class="advanced-search-container-buttons"><!--BUTTON_RESET--><!--BUTTON_SEARCH--></div>
-      </div>'
-      )
-
 
       #
       # Map out the visible fields
@@ -487,33 +475,6 @@ class WidgetListExamplesController < ApplicationController
         'date_added'=>'200px',
         'sku_linked'=>'20px',
       }
-
-      #
-      # If certain statuses of records are shown, visualize
-      #
-
-      list_parms.deep_merge!({'rowStylesByStatus' =>
-                                {'active'=>
-                                   {'Yes' => '' }
-                                }
-                             })
-      list_parms.deep_merge!({'rowStylesByStatus' =>
-                                {'active'=>
-                                   {'No'  => 'font-style:italic;color:red;' }
-                                }
-                             })
-
-      list_parms.deep_merge!({'rowColorByStatus' =>
-                                {'active'=>
-                                   {'Yes' => '' }
-                                }
-                             })
-      list_parms.deep_merge!({'rowColorByStatus' =>
-                                {'active'=>
-                                   {'No'  => '#EBEBEB' }
-                                }
-                             })
-
 
       list_parms['columnPopupTitle'] = {}
       list_parms['columnPopupTitle']['checkbox']         = 'Select any record'
