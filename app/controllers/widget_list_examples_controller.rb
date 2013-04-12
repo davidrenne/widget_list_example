@@ -336,6 +336,7 @@ class WidgetListExamplesController < ApplicationController
       # Uncomment if you wish to play with the administration front end
       #
       @output = WidgetList.go!()
+      return render :inline => @output if params.key?('ajax')
       return
 =end
 
