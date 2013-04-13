@@ -332,11 +332,15 @@ class WidgetListExamplesController < ApplicationController
     begin
 
 =begin
-      # 
+      #
       # Uncomment if you wish to play with the administration front end
       #
       @output = WidgetList.go!()
+<<<<<<< HEAD
       return render :inline => @output if params.key?('ajax')
+=======
+      return render :inline => @output if $_REQUEST.key?('ajax')
+>>>>>>> minor changes for admin console
       return
 =end
 
@@ -363,11 +367,11 @@ class WidgetListExamplesController < ApplicationController
           #
           # Since Sequel is not being used you must escape bindVars yourself!!
           #
-          list_parms['bindVars'] << "'" + filterValue.gsub(/'/,"''") + "'"
+          list_parms['bindVars'] << Item.sanitize(filterValue)
           list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) + ' Filtered by Name (' + filterValue + ')'
         when 'filter_by_sku'
           list_parms['filter']   << " sku = ? "
-          list_parms['bindVars'] << "'" + filterValue.gsub(/'/,"''") + "'"
+          list_parms['bindVars'] << Item.sanitize(filterValue)
           list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) + ' Filtered by SKU (' + filterValue + ')'
         else
           list_parms['listDescription']   = ''
@@ -430,11 +434,11 @@ class WidgetListExamplesController < ApplicationController
       #
 
       mini_buttons = {}
-      mini_buttons['button_edit'] = {'page'       => '/edit',
+      mini_buttons['button_edit'] = {'page'       => '/edit/id/',
                                      'text'       => 'Edit',
                                      'function'   => 'Redirect',
                                      #pass tags to pull from each column when building the URL
-                                     'tags'       => {'my_key_name' => 'name','value_from_database'=>'price'}}
+                                     'tags'       => {'all'=>'all'}}
 
       mini_buttons['button_delete'] = {'page'       => '/delete',
                                        'text'       => 'Delete',
