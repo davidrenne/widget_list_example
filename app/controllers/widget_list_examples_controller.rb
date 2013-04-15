@@ -120,7 +120,7 @@ class WidgetListExamplesController < ApplicationController
                                                          :column_alias           => 'sku_linked'
                                                        )
 
-      if groupByFilter == 'none'
+      if groupByFilter == 'none' || ['sqlite'].include?(WidgetList::List::get_db_type(false))
         list_parms['view']          = '(
                                        SELECT
                                              ' + countSQL + '
