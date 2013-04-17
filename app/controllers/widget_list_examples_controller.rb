@@ -331,10 +331,10 @@ class WidgetListExamplesController < ApplicationController
   def ruby_items_active_record
     begin
 
-=begin
       #
       # Uncomment if you wish to play with the administration front end
       #
+=begin
       @output = WidgetList.go!()
       return render :inline => @output if $_REQUEST.key?('ajax')
       return
@@ -409,17 +409,51 @@ class WidgetListExamplesController < ApplicationController
       list_parms['view']           = list_parms['ransackSearch'].result
 
       #
-      # Map out the visible fields
+      # Group By
       #
-      list_parms['fields'] = {}
-      list_parms['fields']['checkbox']         = 'checkbox_header'
-      list_parms['fields']['id']               = 'Item Id'
-      list_parms['fields']['name_linked']      = 'Name'
-      list_parms['fields']['price']            = 'Price of Item'
-      list_parms['fields']['sku_linked']       = 'Sku #'
-      list_parms['fields']['date_added']       = 'Date Added'
-      list_parms['fields']['active']           = 'Active Item'
-      list_parms['fields'][button_column_name] = button_column_name.capitalize
+
+      groupBy  = WidgetList::List::get_group_by_selection(list_parms)
+
+      case groupBy
+        when 'Averages And Sum'
+          list_parms['groupBy']  = ''
+          groupByFilter          = 'none'
+
+        when 'Name'
+          list_parms['groupBy']  = 'name'
+          groupByFilter          = 'group_name'
+
+        when 'Sku'
+          list_parms['groupBy']  = 'sku'
+          groupByFilter          = 'group_sku'
+
+        else
+          groupByFilter          = 'none'
+          list_parms['groupBy']  = ''
+      end
+
+      if groupBy == 'Averages And Sum'
+        list_parms['totalRow']['price']                = 'price'
+        list_parms['totalRow']['sku_linked']           = 'sku_linked'
+        list_parms['totalRowMethod']['price']          = 'average'
+        list_parms['totalRowPrefix']['price']          = 'Average Price<br/>'
+      end
+
+
+      list_parms['groupByItems'] = ['All Items', 'Name', 'Sku','Averages And Sum']
+
+      #
+      # Fields
+      #
+
+      list_parms['fields']['id']                               =  'Id'                    if groupByFilter == 'none'
+      list_parms['fields']['name_linked']                      =  'Name'                  if groupByFilter == 'none' || groupByFilter == 'group_name'
+      list_parms['fields']['price']                            =  'Price'                 if groupByFilter == 'none'
+      list_parms['fields']['sku_linked']                       =  'Sku'                   if groupByFilter == 'none' || groupByFilter == 'group_sku'
+      list_parms['fields']['active']                           =  'Active'                if groupByFilter == 'none'
+      list_parms['fields']['date_added']                       =  'Date Added'            if groupByFilter == 'none'
+      list_parms['fields']['cnt']                              =  'Count'                 if groupByFilter != 'none'
+      list_parms['fields'][button_column_name] = button_column_name.capitalize  if groupByFilter == 'none'
 
 
       list_parms['noDataMessage'] = 'No Ruby Items Found'
@@ -447,9 +481,10 @@ class WidgetListExamplesController < ApplicationController
         button_column_name => "''",
         'date_added'  => ['postgres','oracle'].include?(WidgetList::List.get_db_type(true)) ? "TO_CHAR(date_added, 'MM/DD/YYYY')" : "date_added"
       }
+      list_parms['fieldFunction']['cnt']                       =  'COUNT(1)'              if groupByFilter != 'none'
 
       list_parms['fieldFunction']['name_linked']    = WidgetList::List::build_drill_down( :list_id => list_parms['name'], :drill_down_name => 'filter_by_name', :data_to_pass_from_view => 'name', :column_to_show => 'name', :column_alias => 'name_linked',:primary_database => false)
-      list_parms['fieldFunction']['sku_linked']     = WidgetList::List::build_drill_down( :list_id => list_parms['name'], :drill_down_name => 'filter_by_sku', :data_to_pass_from_view => 'sku', :column_to_show => 'sku', :column_alias => 'sku_linked',:primary_database => false)
+      list_parms['fieldFunction']['sku_linked']     = WidgetList::List::build_drill_down( :list_id => list_parms['name'], :drill_down_name => 'filter_by_sku', :data_to_pass_from_view => 'sku', :column_to_show => '\'Sku Numbers \' || sku', :column_alias => 'sku_linked',:primary_database => false)
       list_parms['fieldFunction']['checkbox']       = '\'\''
 
       #
