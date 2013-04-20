@@ -72,13 +72,15 @@ class WidgetListExamplesController < ApplicationController
         when 'filter_by_name'
           list_parms['filter']   << " name = ? "
           list_parms['bindVars'] << filterValue
-          list_parms['listDescription']  = ' Filtered by Name (' + filterValue + ')' + groupByDesc
+          list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) + ' Filtered by Name (' + filterValue + ')' + groupByDesc
         when 'filter_by_sku'
           list_parms['filter']   << " sku = ? "
           list_parms['bindVars'] << filterValue
-          list_parms['listDescription']  = ' Filtered by SKU (' + filterValue + ')' + groupByDesc
+          list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) + ' Filtered by SKU (' + filterValue + ')' + groupByDesc
         else
-          list_parms['listDescription']  = 'Showing All Ruby Items' + groupByDesc
+          list_parms['listDescription']   = ''
+          list_parms['listDescription']   = WidgetList::List::drill_down_back(list_parms['name']) if !groupByDesc.empty?
+          list_parms['listDescription']  += 'Showing All Ruby Items' + groupByDesc
       end
 
       # put <%= @output %> inside your view for initial load nothing to do here other than any custom concatenation of multiple lists
@@ -453,7 +455,34 @@ class WidgetListExamplesController < ApplicationController
       list_parms['fields']['cnt']                              =  'Count'                 if groupByFilter != 'none'
       list_parms['fields'][button_column_name] = button_column_name.capitalize  if groupByFilter == 'none'
 
+      #
+      # price alert
+      #
+      list_parms['links']['price']                     = {
+        'onclick' => 'alert',
+        'tags' => {'price'=>'price'},
+      }
+      list_parms['columnStyle']['price']               = 'color:blue;'
 
+      #
+      # redirect with id/date_added replaced
+      #
+      list_parms['links']['id']                        = {
+          'page' => '/my_page/id/date_added/',
+          'tags' => {'all'=>'all'},
+      }
+      list_parms['columnStyle']['id']                  = 'color:blue;'
+
+      #
+      # multi-parameter
+      #
+      list_parms['links']['date_added']                = {
+          'onclick' => 'alert_two',
+          'tags' => {'price'=>'price','date_added'=>'date_added'},
+      }
+      list_parms['columnStyle']['date_added']          = 'color:blue;'
+      
+      
       list_parms['noDataMessage'] = 'No Ruby Items Found'
       list_parms['title']         = 'Ruby Items Using Active Record Models!!!'
 
@@ -481,8 +510,8 @@ class WidgetListExamplesController < ApplicationController
       }
       list_parms['fieldFunction']['cnt']                       =  'COUNT(1)'              if groupByFilter != 'none'
 
-      list_parms['fieldFunction']['name_linked']    = WidgetList::List::build_drill_down( :list_id => list_parms['name'], :drill_down_name => 'filter_by_name', :data_to_pass_from_view => 'name', :column_to_show => 'name', :column_alias => 'name_linked',:primary_database => false)
-      list_parms['fieldFunction']['sku_linked']     = WidgetList::List::build_drill_down( :list_id => list_parms['name'], :drill_down_name => 'filter_by_sku', :data_to_pass_from_view => 'sku', :column_to_show => '\'Sku Numbers \' || sku', :column_alias => 'sku_linked',:primary_database => false)
+      list_parms['fieldFunction']['name_linked']    = WidgetList::List::build_drill_down( :list_id => list_parms['name'], :drill_down_name => 'filter_by_name', :data_to_pass_from_view => 'name', :column_to_show => 'name', :column_alias => 'name_linked',:primary_database => false,:link_color => 'maroon')
+      list_parms['fieldFunction']['sku_linked']     = WidgetList::List::build_drill_down( :list_id => list_parms['name'], :drill_down_name => 'filter_by_sku', :data_to_pass_from_view => 'sku', :column_to_show => '\'Sku Numbers \' || sku', :column_alias => 'sku_linked',:primary_database => false,:link_color => 'maroon')
       list_parms['fieldFunction']['checkbox']       = '\'\''
 
       #
