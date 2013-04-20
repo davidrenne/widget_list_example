@@ -328,17 +328,15 @@ class WidgetListExamplesController < ApplicationController
   end
 
 
+  def administration
+    @output = WidgetList.go!()
+    return render :inline => @output if $_REQUEST.key?('ajax')
+    return
+  end
+
+
   def ruby_items_active_record
     begin
-
-      #
-      # Uncomment if you wish to play with the administration front end
-      #
-=begin
-      @output = WidgetList.go!()
-      return render :inline => @output if $_REQUEST.key?('ajax')
-      return
-=end
 
       list_parms   = WidgetList::List::init_config()
 

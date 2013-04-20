@@ -2,10 +2,12 @@
 /log/*.log
 /tmp
 /.idea/*
+/vendor/bundle/*
 /vendor/cache/*
 /.sass-cache/*
 *.DS_Store
 Gemfile
 Gemfile.lock
+widget-list-administration*
 
 db/development.sqlite3
