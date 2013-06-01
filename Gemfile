@@ -10,24 +10,25 @@ gem 'activerecord-postgresql-adapter'
 gem 'activerecord-oracle_enhanced-adapter'
 gem 'ruby-oci8'
 
+=begin
 group :test, :development do
   gem 'steak'  
   gem 'launchy' 
   gem 'selenium-webdriver'  
   gem 'spork'
 end
+=end
 
 #
 # Bleeding edge widget_list is always best just in case I dont bundle the gem and post to http://rubygems.org
 #
-gem 'widget_list'
-gem 'widget_list_theme_blue_sky_basin'
+#gem 'widget_list', :path => 'C:/xampp/htdocs/widget_list/'
 
 #
 # Or pull from rubygems.org
 #
-# gem 'widget_list'
-
+gem 'widget_list'
+gem 'mongo_mapper'
 
 # Gems used only for assets and not required
 # in production environments by default.
