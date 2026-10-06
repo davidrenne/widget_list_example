@@ -1,7 +1,7 @@
 PATH
   remote: ../widget_list
   specs:
-    widget_list (2.0.0)
+    widget_list (2.0.1)
       csv (~> 3.3)
       ransack (= 5.0.2)
       sequel (= 5.109.0)
